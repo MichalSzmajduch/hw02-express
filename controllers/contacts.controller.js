@@ -11,6 +11,7 @@ const get = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
+  } finally {
     next(error);
   }
 };
@@ -27,15 +28,17 @@ const getById = async (req, res, next) => {
           message: "Contact not found",
         },
       });
+    } else {
+      return res.json({
+        status: "success",
+        code: 200,
+        data: {
+          contact: results,
+        },
+      });
     }
-    return res.json({
-      status: "success",
-      code: 200,
-      data: {
-        contact: results,
-      },
-    });
   } catch (error) {
+    next(error);
     return res.status(400).json({
       status: "error",
       code: 400,
@@ -43,11 +46,10 @@ const getById = async (req, res, next) => {
         message: error.message,
       },
     });
-    next(error);
   }
 };
 
-const create = async (req, res, next) => {
+async function create(req, res, next) {
   try {
     const { body, user } = req;
     const results = await contactsService.create({ ...body, owner: user._id });
@@ -62,9 +64,12 @@ const create = async (req, res, next) => {
     console.error(e);
     next(e);
   }
-};
+}
 
 const update = async (req, res, next) => {
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
   try {
     const { id } = req.params;
     const { body, user } = req;

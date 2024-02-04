@@ -1,6 +1,6 @@
 import passport from "passport";
 import passportJWT from "passport-jwt";
-import User from "../user/user.model.js";
+import User from "../models/user.model.js";
 
 import dotenv from "dotenv";
 dotenv.config();

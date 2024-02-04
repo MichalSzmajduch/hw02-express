@@ -1,8 +1,11 @@
 import jwt from "jsonwebtoken";
-import User from "../user/user.model.js";
+import User from "../models/user.model.js";
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
   const user = await User.findOne({ email });
 
   if (!user || !user.validPassword(password)) {
@@ -36,6 +39,9 @@ const login = async (req, res) => {
 
 const signup = async (req, res, next) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
   const user = await User.findOne({ email }).lean();
   if (user) {
     return res.status(409).json({
