@@ -10,9 +10,8 @@ const get = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error(error);
-  } finally {
     next(error);
+    console.error(error);
   }
 };
 

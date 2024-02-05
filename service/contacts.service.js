@@ -1,5 +1,13 @@
 import Contact from "../models/contact.model.js";
 
+const getAllByOwner = async (userId) => {
+  try {
+    return await Contact.find({ owner: userId });
+  } catch (error) {
+    throw new Error(`Error while fetching contacts: ${error.message}`);
+  }
+};
+
 const getAll = async (query) => {
   return Contact.find(query);
 };
@@ -35,4 +43,5 @@ export default {
   update,
   updateFavorite,
   remove,
+  getAllByOwner,
 };
