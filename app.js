@@ -1,26 +1,25 @@
 import mongoose from "mongoose";
 import express from "express";
-import cors from "cors";
-
+import passport from "./config/passport.js";
+import { router as authRoutes } from "./routes/api/auth.routes.js";
 import { router as contactRoutes } from "./routes/api/contacts.routes.js";
 
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 4000;
 
 const connection = mongoose.connect(process.env.DB_URL, {
   dbName: "db-contacts",
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(passport.initialize());
 app.use("/api", contactRoutes);
+app.use("/api/auth", authRoutes);
 
 connection
   .then(() => {
@@ -33,5 +32,3 @@ connection
     console.error(`Error while establishing connection: [${error}]`);
     process.exit(1);
   });
-
-export default { app };
