@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import gravatar from "gravatar";
+import { v4 as uuid } from "uuid";
+import sendEmail from "../helpers/mailer.js";
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -53,13 +56,28 @@ const signup = async (req, res, next) => {
   }
   try {
     const newUser = new User({ email });
+    const verificationToken = uuid();
+
     newUser.setPassword(password);
-    await newUser.save();
+    newUser.avatarURL = gravatar.url(email).slice(2);
+    newUser.verificationToken = verificationToken;
+    const result = await newUser.save();
+    const verificationLink = `${req.protocol}://${req.get(
+      "host"
+    )}/api/auth/verify/${verificationToken}`;
+    sendEmail({
+      to: newUser.email,
+      link: verificationLink,
+    });
     return res.status(201).json({
       status: "success",
       code: 201,
       data: {
         message: "Registration successful",
+        user: {
+          email: result.email,
+          subscription: result.subscription,
+        },
       },
     });
   } catch (error) {
